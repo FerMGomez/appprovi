@@ -1,0 +1,68 @@
+================================================================================
+ESTADO DEL PROYECTO: SISTEMA DE PROVISIÓN LOGÍSTICA 2026
+================================================================================
+
+OBJETIVO:
+Calcular la provisión mensual de transporte cruzando datos de facturación (SAP) 
+con registros de tráfico (Viajes), aplicando un tarifario complejo.
+
+ESTRUCTURA DEL PROYECTO (app_Provision):
+---------------------------------------
+inputs/       -> Archivos del mes: 'Viajes trafico.xlsx', 'billing_consolidated.parquet'.
+                 Opcional: 'Tarifario_macro.xlsm' (solo si hay aumentos).
+master_data/  -> Datos fijos: 'ZCUST.xlsx', 'Descripcion de rutas.xlsx', 'Tarifas_Alcance.xlsx'.
+db/           -> Base de datos SQLite 'provision_master.db' (Persistencia robusta).
+outputs/      -> Resultados: 'Provision_Calculada_Mes_X.xlsx'.
+templates/    -> Interfaz HTML (Provision.html) para la visualización web.
+utilidades/   -> Scripts de apoyo (Actualización de tarifarios, limpieza de maestros).
+eliminar/     -> Backups y scripts obsoletos (sin incidencia en el cálculo actual).
+
+LOGICA PRINCIPAL (2026_Provision.py):
+------------------------------------
+1. PORTABILIDAD: Uso de BASE_DIR y rutas relativas. Funciona en cualquier PC/Carpeta.
+2. PERSISTENCIA: Los datos maestros se sincronizan desde Excel a SQLite automáticamente.
+   La lectura desde DB es 10x más rápida que desde Excel.
+3. VECTORIZACIÓN: Se eliminaron los bucles 'iterrows'. Los cálculos de tarifas 
+   usan NumPy y Pandas (asignación masiva por máscaras booleanas).
+4. CLASIFICACIÓN T_VIAJE: 
+   - Reglas basadas en Regex para clasificar en: Unico, Re_Viaje, Alcance_Expo, 
+     Alcance, Retiro, Distribución y Alcance_D.
+5. CÁLCULO DE COSTOS:
+   - Directos: Match por Transporte + Zona + Unidad.
+   - Distribución: Lógica por peso (Aforo 900kg + excedente o tarifa plana por kg).
+   - Penalidades: Manejo de 'FALSO FLETE' (50%) y 'NO SHOW' (-50%).
+   - Alcance: Costo fijo por transportista y tipo de operación.
+6. MOTOR DE CÁLCULO: El script funciona como un motor que puede ser llamado 
+   desde la línea de comandos o desde la App Web de Flask.
+
+ARCHIVOS DE AUTOMATIZACIÓN:
+--------------------------
+- Organizar_Proyecto.py: Crea las carpetas y mueve los archivos a su lugar.
+- Ejecutar_Provision.bat: Script obsoleto. El lanzamiento principal es ahora 'app.exe'.
+- app.py: Inicia el servidor Flask para la interfaz de usuario en el navegador.
+
+ESTADO DE VALIDACIÓN:
+--------------------
+[OK] Carga de Maestros y Tarifario.
+[OK] Carga de Viajes Tráfico.
+[OK] Carga de Billing (Parquet).
+[OK] Cruce de datos y cálculo de Provisión.
+[OK] Generación de reportes (V_BASE, Resumen Clientes, Resumen Rutas).
+[OK] Interfaz Web (Flask + HTML) para ejecución con un solo botón (CALCULAR).
+[OK] Visualización de resultados en navegador (pestañas por hoja de Excel).
+[OK] Descarga directa de archivos generados desde la interfaz.
+[OK] Diseño UI/UX Profesional con Bootstrap 5 e iconos.
+[OK] Lanzamiento de la aplicación mediante un único archivo .exe (PyInstaller).
+[OK] Gestión inteligente de rutas (Internas vs Externas) para portabilidad total.
+
+PRÓXIMOS PASOS / IDEAS DE MEJORA:
+--------------------------------
+1. Reporte de Desvíos: Comparar lo provisionado vs lo facturado realmente.
+2. Validaciones de Datos: Script que detecte columnas faltantes o formatos de 
+   fecha erróneos antes de empezar el cálculo.
+3. Dashboard: Generar un resumen visual (PowerBI o Matplotlib) con el gasto por 
+
+--------------------------------------------------------------------------------
+Última actualización: Mayo 2025
+Desarrollado con asistencia de Gemini Code Assist.
+================================================================================

@@ -1,0 +1,16 @@
+# Entornos virtuales
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Datos del proyecto (No subir datos sensibles o pesados)
+db/*.db
+inputs/
+outputs/*.xlsx
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
